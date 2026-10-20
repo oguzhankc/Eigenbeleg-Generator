@@ -50,7 +50,7 @@ Nicht priorisiert und nur bei übriger Zeit: Belege bearbeiten oder löschen, Fi
 
 ## Zentrale Entity: `Receipt`
 
-Ein `Receipt` steht für einen Eigenbeleg und soll später genau einem Nutzer gehören. Als weitere Entities sind `User` (Login) und `CompanyProfile` (Firmendaten inklusive Logo) geplant. Die Entity-Klasse ist umgesetzt; `ownerId` bleibt bis zum Login leer.
+Ein `Receipt` steht für einen Eigenbeleg und soll später genau einem Nutzer gehören. Als weitere Entities sind `User` (Login) und `CompanyProfile` (Firmendaten inklusive Logo) geplant. Die Entity-Klasse ist umgesetzt; `ownerId` bleibt bis zum Login leer. Die Eingaberegeln aus den Use Cases (Pflichtfelder, Längen, Betrag größer 0, Datumsregeln, Anschrift beim Ankauf) sind als Bean-Validation-Annotationen hinterlegt.
 
 | Eigenschaft   | Typ | Bedeutung |
 | ------------- | ------ | --------- |
@@ -66,6 +66,8 @@ Ein `Receipt` steht für einen Eigenbeleg und soll später genau einem Nutzer ge
 |   `vatRate`   |  Enum  | `REGELSATZ_19`, `ERMAESSIGT_7`, `OHNE_UST` (siehe [Steuerliche Auswahl](#steuerliche-auswahl-vatrate)) |
 |    `reason`   |`String`| Grund, warum kein Originalbeleg vorliegt |
 |`paymentMethod`|  Enum  | `BAR`, `UEBERWEISUNG`, `KARTE` |
+| `issuerName`  |`String`| Name des Ausstellers, Kopie der Firmendaten beim Speichern (ab Login und Firmendaten) |
+|`issuerAddress`|`String`| Anschrift des Ausstellers, Kopie der Firmendaten beim Speichern |
 |  `createdAt`  |`Instant`| Erstellungszeitpunkt |
 |   `ownerId`   | `UUID` | Verweis auf den Nutzer (erst mit Login relevant) |
 
