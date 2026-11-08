@@ -1,0 +1,7 @@
+build
+.gradle
+.idea
+.unlazy
+.git
+docs
+*.md
