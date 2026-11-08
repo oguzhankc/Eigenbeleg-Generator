@@ -16,7 +16,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
-// Regeln laut docs/use-cases.md, UC-04 und UC-05. Sie greifen, wenn ein Controller
+// Regeln laut docs/use-cases.md, UC-03 und UC-04. Sie greifen, wenn ein Controller
 // den Beleg mit @Valid entgegennimmt. Vom System gesetzte Felder haben keine Eingaberegeln.
 @Data
 @Builder
@@ -63,7 +63,7 @@ public class Receipt {
     @NotNull(message = "Die Zahlungsart fehlt.")
     private PaymentMethod paymentMethod;
 
-    // Kopie der Firmendaten beim Speichern (UC-03, UC-04); bleibt in M4 ohne Firmendaten null
+    // Kopie der Firmendaten beim Speichern (UC-02, UC-03); bleibt in M4 ohne Firmendaten null
     @Size(max = 200, message = "Der Name des Ausstellers darf höchstens 200 Zeichen lang sein.")
     private String issuerName;
 

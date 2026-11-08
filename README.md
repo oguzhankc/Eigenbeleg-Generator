@@ -93,16 +93,18 @@ Vorbelegung: Beim allgemeinen Eigenbeleg ist `REGELSATZ_19` voreingestellt, beim
 | Framework | Spring Boot 4.1.1 |
 | Build | Gradle mit Gradle Wrapper (`gradlew`) |
 | Abhängigkeiten | `spring-boot-starter-webmvc`, `spring-boot-starter-validation`, Lombok, Spring Boot DevTools |
-| Tests | JUnit 5 mit einem Kontext-Ladetest (`Webtech2026ApplicationTests`) |
+| Tests | JUnit 5: Kontext-Ladetest, Validierung von `Receipt`, JSON-Ausgabe und CORS der GET-Route |
+| Deployment | `Dockerfile` für Render (Web Service), Port über `PORT`, erlaubte Frontend-Adresse über `FRONTEND_URL` |
 
 ### Geplant
 
 | Bereich | Plan |
 | --- | --- |
-| Frontend | Vue.js mit TypeScript (separates Repository bzw. Projektteil) |
-| Datenbank | PostgreSQL, erst nach M1 |
-| Deployment | Hostinger, Tarif noch offen. Für ein Spring-Boot-Backend wird ein Tarif benötigt, auf dem ein eigener Java-Prozess läuft (z. B. VPS). |
+| Frontend | Vue.js mit TypeScript, eigenes Repository: <https://github.com/Surhay276/eigenbeleg-generator-frontend> |
+| Datenbank | PostgreSQL auf Render (M4) |
 | CI | GitHub Actions, bisher noch keine Workflows im Repository |
+
+Schritt-für-Schritt-Anleitung für Render: [`docs/deployment.md`](docs/deployment.md).
 
 ## Aktueller Stand und Meilenstein M1
 
@@ -126,6 +128,6 @@ Voraussetzung: ein installiertes JDK 25, da `build.gradle` diese Toolchain-Versi
 ./gradlew test
 ```
 
-Unter Windows `gradlew.bat` statt `./gradlew` verwenden. Da in `application.properties` kein eigener Port gesetzt ist, nutzt Spring Boot den Standardport 8080.
+Unter Windows `gradlew.bat` statt `./gradlew` verwenden. Ist `gradlew` nicht ausführbar, hilft `bash ./gradlew bootRun`. Ohne die Umgebungsvariable `PORT` läuft das Backend auf Port 8080, und ohne `FRONTEND_URL` darf das lokale Frontend unter `http://localhost:5173` die API aufrufen.
 
 Beispieldaten: `GET http://localhost:8080/api/receipts`
