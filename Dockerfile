@@ -1,14 +1,13 @@
-# Stufe 1: Anwendung mit JDK 25 bauen
-FROM eclipse-temurin:25-jdk AS build
+# Stufe 1: Anwendung bauen; das Image enthält Gradle und JDK 25, der Wrapper-Download entfällt
+FROM gradle:9.7.1-jdk25 AS build
 WORKDIR /app
 
 # Zuerst nur die Gradle-Dateien kopieren, damit Docker die Abhängigkeiten zwischenspeichern kann
-COPY gradlew settings.gradle build.gradle ./
-COPY gradle gradle
-RUN sh gradlew dependencies --no-daemon > /dev/null
+COPY settings.gradle build.gradle ./
+RUN gradle dependencies --no-daemon > /dev/null
 
 COPY src src
-RUN sh gradlew bootJar --no-daemon
+RUN gradle bootJar --no-daemon
 
 # Stufe 2: nur die fertige JAR mit der schlankeren Java-Laufzeit ausführen
 FROM eclipse-temurin:25-jre
