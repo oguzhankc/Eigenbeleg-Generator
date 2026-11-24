@@ -128,6 +128,6 @@ Voraussetzung: ein installiertes JDK 25, da `build.gradle` diese Toolchain-Versi
 ./gradlew test
 ```
 
-Unter Windows `gradlew.bat` statt `./gradlew` verwenden. Ist `gradlew` nicht ausführbar, hilft `bash ./gradlew bootRun`. Ohne die Umgebungsvariable `PORT` läuft das Backend auf Port 8080, und ohne `FRONTEND_URL` darf das lokale Frontend unter `http://localhost:5173` die API aufrufen.
+Unter Windows `gradlew.bat` statt `./gradlew` verwenden. Ohne die Umgebungsvariable `PORT` läuft das Backend auf Port 8080, und ohne `FRONTEND_URL` darf das lokale Frontend unter `http://localhost:5173` die API aufrufen.
 
 Beispieldaten: `GET http://localhost:8080/api/receipts`

@@ -16,5 +16,7 @@ COPY --from=build /app/build/libs/*.jar app.jar
 
 # Kostenloser Render-Tarif hat 512 MB Arbeitsspeicher; Java nutzt höchstens 75 % davon
 ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75"
+# „Heute“ für die Datumsprüfung soll in Berlin gelten, nicht in UTC
+ENV TZ=Europe/Berlin
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
