@@ -1,6 +1,13 @@
 package htw.webtech2026.Webtech2026.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,17 +25,23 @@ import java.util.UUID;
 
 // Regeln laut docs/use-cases.md, UC-03 und UC-04. Sie greifen, wenn ein Controller
 // den Beleg mit @Valid entgegennimmt. Vom System gesetzte Felder haben keine Eingaberegeln.
+// Als JPA-Entity wird jeder Beleg eine Zeile der Tabelle "receipt" in PostgreSQL.
+@Entity
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Receipt {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(unique = true, length = 30)
     @Size(max = 30, message = "Die Belegnummer darf höchstens 30 Zeichen lang sein.")
     private String number;
 
     @NotNull(message = "Die Belegart fehlt.")
+    @Enumerated(EnumType.STRING)
     private ReceiptType type;
 
     @NotNull(message = "Das Ausstellungsdatum fehlt.")
@@ -40,13 +53,16 @@ public class Receipt {
 
     @NotBlank(message = "Der Zahlungsempfänger fehlt.")
     @Size(max = 200, message = "Der Zahlungsempfänger darf höchstens 200 Zeichen lang sein.")
+    @Column(length = 200)
     private String payeeName;
 
     @Size(max = 500, message = "Die Anschrift darf höchstens 500 Zeichen lang sein.")
+    @Column(length = 500)
     private String payeeAddress;
 
     @NotBlank(message = "Die Art der Aufwendung fehlt.")
     @Size(max = 500, message = "Die Art der Aufwendung darf höchstens 500 Zeichen lang sein.")
+    @Column(length = 500)
     private String description;
 
     @NotNull(message = "Der Betrag fehlt.")
@@ -54,20 +70,25 @@ public class Receipt {
     private Long amountCents;
 
     @NotNull(message = "Die Umsatzsteuer-Auswahl fehlt.")
+    @Enumerated(EnumType.STRING)
     private VatRate vatRate;
 
     @NotBlank(message = "Der Grund für den fehlenden Originalbeleg fehlt.")
     @Size(max = 500, message = "Der Grund darf höchstens 500 Zeichen lang sein.")
+    @Column(length = 500)
     private String reason;
 
     @NotNull(message = "Die Zahlungsart fehlt.")
+    @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
     // Kopie der Firmendaten beim Speichern (UC-02, UC-03); bleibt in M4 ohne Firmendaten null
     @Size(max = 200, message = "Der Name des Ausstellers darf höchstens 200 Zeichen lang sein.")
+    @Column(length = 200)
     private String issuerName;
 
     @Size(max = 500, message = "Die Anschrift des Ausstellers darf höchstens 500 Zeichen lang sein.")
+    @Column(length = 500)
     private String issuerAddress;
 
     private Instant createdAt;

@@ -24,7 +24,7 @@ Stand: 19.10.2026. Die Abgabetermine stehen im Kurs und sind hier nicht eingetra
 | M1 | Spring-Boot-App, Entity `Receipt`, `GET /api/receipts` mit Beispieldaten | Erledigt |
 | M2 | Vue-App mit eigener Komponente und `v-for`-Liste auf GitHub | In Arbeit: App lokal fertig, Push auf GitHub fehlt |
 | M3 | Frontend und Backend auf Render, Frontend ruft die GET-Route auf | Offen |
-| M4 | PostgreSQL auf Render, Frontend speichert über die POST-Route | Offen |
+| M4 | PostgreSQL auf Render, Frontend speichert über die POST-Route | Lokal fertig, Render-Datenbank und Push fehlen |
 | Finale Abgabe | alle Muss-Use-Cases, Tests in GitHub Actions, Screenshot-Doku | Offen |
 
 ## 2. Funktionsliste
@@ -40,10 +40,10 @@ Spalte „Bezug“: Use Case aus `use-cases.md`, DSGVO-Pflicht aus `dsgvo.md` od
 | F-05 | Backend auf Render | Technik | `Dockerfile`, `server.port=${PORT:8080}` | – | M3 | F-01 | Offen |
 | F-06 | Frontend auf Render und CORS | Technik, UC-05 | CORS für die Frontend-URL | Static Site, `VITE_API_BASE_URL` | M3 | F-04, F-05 | Offen |
 | F-07 | Verlauf lädt vom Backend | UC-05 | – | `fetch` auf `GET /api/receipts`, Lade- und Fehlerzustand | M3 | F-06 | Offen |
-| F-08 | Datenbank anbinden | Technik, UC-05 | PostgreSQL auf Render, Spring Data JPA, `ReceiptRepository` | – | M4 | F-05 | Offen |
-| F-09 | Beleg speichern | UC-03, UC-04 | `POST /api/receipts` mit `@Valid`, Fehler als Feldmeldungen | – | M4 | F-02, F-08 | Offen |
-| F-10 | Belegformular | UC-03, UC-04 | – | `ReceiptForm.vue` für beide Belegarten, Euro-Eingabe in Cent | M4 | F-09 | Offen |
-| F-11 | Fortlaufende Belegnummer | UC-02, UC-03 | M4: fortlaufend über alle Belege. Final: je Nutzer und Jahr nach Nummernkreis | – | M4, Finale | F-08 | Offen |
+| F-08 | Datenbank anbinden | Technik, UC-05 | PostgreSQL auf Render, Spring Data JPA, `ReceiptRepository` | – | M4 | F-05 | Erledigt (lokal) |
+| F-09 | Beleg speichern | UC-03, UC-04 | `POST /api/receipts` mit `@Valid`, Fehler als Feldmeldungen | – | M4 | F-02, F-08 | Erledigt (lokal) |
+| F-10 | Belegformular | UC-03, UC-04 | – | `ReceiptForm.vue` für beide Belegarten, Euro-Eingabe in Cent | M4 | F-09 | Erledigt (lokal) |
+| F-11 | Fortlaufende Belegnummer | UC-02, UC-03 | M4: fortlaufend über alle Belege. Final: je Nutzer und Jahr nach Nummernkreis | – | M4, Finale | F-08 | Erledigt (lokal) |
 | F-12 | Registrieren | UC-01 | Spring Security, Entity `User`, BCrypt, `POST /api/auth/register` | `/registrieren` | Finale | F-08 | Offen |
 | F-13 | Anmelden und Abmelden | UC-01 | `POST /api/auth/login`, `POST /api/auth/logout`, Sitzungscookie | `/anmelden`, Router-Guard, Navigationsleiste | Finale | F-12 | Offen |
 | F-14 | Nur eigene Belege sehen | UC-01, UC-05, UC-06 | Filter nach `ownerId`, fremde Belege ergeben 404 | – | Finale | F-13 | Offen |
@@ -101,16 +101,17 @@ Spalte „Bezug“: Use Case aus `use-cases.md`, DSGVO-Pflicht aus `dsgvo.md` od
 
 **Abgabe:** Link zum Frontend auf Render.
 
-- [ ] PostgreSQL-Datenbank auf Render anlegen und Ablaufdatum des kostenlosen Tarifs notieren
-- [ ] Abhängigkeiten `spring-boot-starter-data-jpa` und PostgreSQL-Treiber in `build.gradle`
-- [ ] Zugangsdaten nur als Umgebungsvariablen. Achtung: Render zeigt eine URL der Form `postgresql://…`, Spring braucht `jdbc:postgresql://host:port/datenbank` mit Benutzer und Passwort getrennt.
-- [ ] `Receipt` wird JPA-Entity: `@Entity`, `@Id`, Enums mit `@Enumerated(EnumType.STRING)`
-- [ ] `ReceiptRepository extends JpaRepository<Receipt, UUID>`
-- [ ] `POST /api/receipts` mit `@Valid @RequestBody Receipt`: System setzt `id`, `number`, `createdAt`. Antwort 201 mit dem gespeicherten Beleg.
-- [ ] Fehlerbehandlung: `@RestControllerAdvice` wandelt Validierungsfehler in HTTP 400 mit Feld → Meldung um. Die deutschen Meldungen stehen schon in `Receipt.java`.
-- [ ] Fortlaufende Belegnummer über alle Belege (F-11, M4-Variante)
-- [ ] `GET /api/receipts` liest aus der Datenbank, die Beispielbelege im Controller entfallen
-- [ ] Frontend: `ReceiptForm.vue` für allgemeinen und Ankaufbeleg, „4,50“ wird zu 450 Cent, Feldmeldungen anzeigen, nach dem Speichern erscheint der Beleg im Verlauf
+- [x] PostgreSQL-Datenbank auf Render anlegen und Ablaufdatum des kostenlosen Tarifs notieren: `eigenbeleg-db` (Frankfurt, PostgreSQL 18) läuft am 24.12.2026 ab
+- [x] Abhängigkeiten `spring-boot-starter-data-jpa` und PostgreSQL-Treiber in `build.gradle`
+- [x] Zugangsdaten nur als Umgebungsvariablen. Achtung: Render zeigt eine URL der Form `postgresql://…`, Spring braucht `jdbc:postgresql://host:port/datenbank` mit Benutzer und Passwort getrennt.
+- [x] `Receipt` wird JPA-Entity: `@Entity`, `@Id`, Enums mit `@Enumerated(EnumType.STRING)`
+- [x] `ReceiptRepository extends JpaRepository<Receipt, UUID>`
+- [x] `POST /api/receipts` mit `@Valid @RequestBody Receipt`: System setzt `id`, `number`, `createdAt`. Antwort 201 mit dem gespeicherten Beleg.
+- [x] Fehlerbehandlung: `@RestControllerAdvice` wandelt Validierungsfehler in HTTP 400 mit Feld → Meldung um. Die deutschen Meldungen stehen schon in `Receipt.java`.
+- [x] Fortlaufende Belegnummer über alle Belege (F-11, M4-Variante)
+- [x] `GET /api/receipts` liest aus der Datenbank, die Beispielbelege im Controller entfallen
+- [x] Frontend: `ReceiptForm.vue` für allgemeinen und Ankaufbeleg, „4,50“ wird zu 450 Cent, Feldmeldungen anzeigen, nach dem Speichern erscheint der Beleg im Verlauf
+- [ ] Commit und Push in beiden Repositories, Umgebungsvariablen auf Render setzen (`docs/deployment.md`, Abschnitt M4)
 
 ### Finale Abgabe
 
@@ -188,8 +189,8 @@ Für mehrere Seiten braucht das Frontend Vue Router. Er wird spätestens mit M4 
 
 | Bereich | Vorhanden | Geplant |
 | --- | --- | --- |
-| Backend | 12 Tests: Kontext lädt, 9 Validierungsregeln (`ReceiptValidationTest`), 2 JSON-Tests für `GET /api/receipts` (`ReceiptControllerTest`) | je Funktion die Testideen aus `use-cases.md`, z. B. `POST /api/receipts` speichert, 404 bei fremden Belegen, PDF-Inhalt |
-| Frontend | 6 Tests: `ReceiptList.vue` (Zeilen, Formatierung, Sortierung, Summe, Leerzustand) und `App.vue` | `ReceiptForm.vue`, Router-Guard, Lade- und Fehlerzustände |
+| Backend | 21 Tests mit PostgreSQL in Docker (Testcontainers): 9 Validierungsregeln (`ReceiptValidationTest`), 6 für `GET`/`POST /api/receipts` (`ReceiptControllerTest`: Speichern, Systemfelder, 400 mit Feldmeldungen, fortlaufende Nummer, neueste zuerst), 6 CORS (`CorsConfigTest`) | je Funktion die Testideen aus `use-cases.md`, z. B. 404 bei fremden Belegen, PDF-Inhalt |
+| Frontend | 33 Tests: `ReceiptList.vue`, `App.vue` (Laden, Fehler, Links, Erfolgsmeldung), `ReceiptForm.vue` (Vorbelegungen, Senden in Cent, Feldmeldungen, Verbindungsfehler), `api/receipts.ts`, `parseEuroToCents` | Router-Guard, Gast-Modus |
 | Automatisch | – | F-23: GitHub Actions bei jedem Push und Pull Request, in beiden Repositories |
 
 ## 8. Reihenfolge und Abhängigkeiten

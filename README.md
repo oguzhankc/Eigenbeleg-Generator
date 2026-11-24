@@ -92,8 +92,9 @@ Vorbelegung: Beim allgemeinen Eigenbeleg ist `REGELSATZ_19` voreingestellt, beim
 | Sprache | Java, Toolchain Java 25 (`build.gradle`) |
 | Framework | Spring Boot 4.1.1 |
 | Build | Gradle mit Gradle Wrapper (`gradlew`) |
-| Abhängigkeiten | `spring-boot-starter-webmvc`, `spring-boot-starter-validation`, Lombok, Spring Boot DevTools |
-| Tests | JUnit 5: Kontext-Ladetest, Validierung von `Receipt`, JSON-Ausgabe und CORS der GET-Route |
+| Abhängigkeiten | `spring-boot-starter-webmvc`, `spring-boot-starter-validation`, `spring-boot-starter-data-jpa`, PostgreSQL-Treiber, Lombok, Spring Boot DevTools |
+| Datenbank | PostgreSQL, Zugang über `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`; Tabelle `receipt` legt Hibernate an |
+| Tests | JUnit 5 mit Testcontainers (PostgreSQL in Docker): Validierung von `Receipt`, Speichern per POST, 400 mit Feldmeldungen, fortlaufende Nummer, CORS |
 | Deployment | `Dockerfile` für Render (Web Service), Port über `PORT`, erlaubte Frontend-Adresse über `FRONTEND_URL` |
 
 ### Geplant
@@ -101,7 +102,6 @@ Vorbelegung: Beim allgemeinen Eigenbeleg ist `REGELSATZ_19` voreingestellt, beim
 | Bereich | Plan |
 | --- | --- |
 | Frontend | Vue.js mit TypeScript, eigenes Repository: <https://github.com/Surhay276/eigenbeleg-generator-frontend> |
-| Datenbank | PostgreSQL auf Render (M4) |
 | CI | GitHub Actions, bisher noch keine Workflows im Repository |
 
 Schritt-für-Schritt-Anleitung für Render: [`docs/deployment.md`](docs/deployment.md).
@@ -118,16 +118,19 @@ Für M1 ist keine Datenbank und keine Seed-Migration nötig: Die Route soll eine
 
 ## Projekt lokal starten
 
-Voraussetzung: ein installiertes JDK 25, da `build.gradle` diese Toolchain-Version festlegt.
+Voraussetzung: ein installiertes JDK 25, da `build.gradle` diese Toolchain-Version festlegt, und Docker für die Datenbank.
 
 ```bash
+# Lokale Datenbank starten; Name, Benutzer und Passwort passen zu den Vorgaben in application.properties
+docker run -d --name eigenbeleg-db -e POSTGRES_USER=eigenbeleg -e POSTGRES_PASSWORD=eigenbeleg -e POSTGRES_DB=eigenbeleg -p 5432:5432 postgres:17-alpine
+
 # Anwendung starten
 ./gradlew bootRun
 
-# Tests ausführen
+# Tests ausführen; sie starten ihre eigene PostgreSQL in Docker
 ./gradlew test
 ```
 
 Unter Windows `gradlew.bat` statt `./gradlew` verwenden. Ohne die Umgebungsvariable `PORT` läuft das Backend auf Port 8080, und ohne `FRONTEND_URL` darf das lokale Frontend unter `http://localhost:5173` die API aufrufen.
 
-Beispieldaten: `GET http://localhost:8080/api/receipts`
+Belege: `GET http://localhost:8080/api/receipts`, neuer Beleg: `POST http://localhost:8080/api/receipts` (JSON)

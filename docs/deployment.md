@@ -1,4 +1,4 @@
-# Deployment auf Render (M3)
+# Deployment auf Render (M3, M4)
 
 Backend und Frontend laufen auf [Render](https://render.com) als zwei getrennte Dienste:
 
@@ -75,6 +75,56 @@ Ohne diesen Schritt blockiert der Browser die Anfrage des Frontends. In der Brow
 
 **Abgabe M3:** der Link `https://<backend>.onrender.com/api/receipts`.
 
+## M4: PostgreSQL-Datenbank anbinden
+
+Ab M4 speichert das Backend die Belege in PostgreSQL. Ohne Datenbank startet es nicht mehr.
+
+### 1. Datenbank anlegen
+
+1. **New → Postgres**.
+2. Einstellungen:
+
+   | Feld | Wert |
+   | --- | --- |
+   | Name | z. B. `eigenbeleg-db` |
+   | Database | `eigenbeleg` |
+   | User | `eigenbeleg` |
+   | Region | **dieselbe wie das Backend** (Frankfurt), sonst funktioniert die interne Adresse nicht |
+   | PostgreSQL Version | die vorgeschlagene |
+   | Instance Type | Free |
+
+3. **Create Database** und warten, bis der Status „Available“ ist.
+4. Das Ablaufdatum der kostenlosen Datenbank notieren. Render zeigt es oben auf der Seite der Datenbank an (Risiko in `projektplan.md`, Abschnitt 9).
+
+### 2. Zugangsdaten ins Backend eintragen
+
+Auf der Seite der Datenbank oben rechts **Connect** öffnen und den Reiter **Internal** wählen. Render zeigt dort eine URL der Form `postgresql://BENUTZER:PASSWORT@HOST/DATENBANK`. Spring kann diese URL nicht direkt lesen. Es braucht `jdbc:postgresql://…`, und Benutzer und Passwort stehen getrennt.
+
+Beispiel: Aus `postgresql://eigenbeleg:AbC123@dpg-abc123-a/eigenbeleg` wird:
+
+| Variable | Wert | Woher |
+| --- | --- | --- |
+| `DB_URL` | `jdbc:postgresql://dpg-abc123-a:5432/eigenbeleg` | `jdbc:` davor, Host, Port `5432`, Datenbankname |
+| `DB_USERNAME` | `eigenbeleg` | Teil vor dem `:` |
+| `DB_PASSWORD` | `AbC123` | Teil zwischen `:` und `@` |
+
+1. Im Backend-Dienst **Environment → Add Environment Variable** und die drei Variablen anlegen. `FRONTEND_URL` aus M3 bleibt.
+2. **Save, rebuild, and deploy**.
+3. In den **Logs** muss `Started Webtech2026Application` erscheinen. Steht dort `Connection refused` oder `password authentication failed`, ist eine der drei Variablen falsch.
+
+Das Passwort nur in Render eintragen, nie in eine Datei im Repository.
+
+### 3. Prüfen
+
+| Prüfung | Erwartung |
+| --- | --- |
+| `https://<backend>.onrender.com/api/receipts` | `[]` (leere Liste), danach die gespeicherten Belege |
+| Frontend → „Neuer Eigenbeleg“ → ausfüllen → „Beleg speichern“ | Liste mit „Beleg EB-JJJJ-0001 gespeichert.“ und dem neuen Beleg |
+| Seite neu laden | Beleg ist noch da, er kommt aus der Datenbank |
+| Browser-Konsole | keine CORS-Fehler |
+
+**Abgabe M4:** der Link `https://<frontend>.onrender.com`.
+
 ## Gut zu wissen
 
 - **Kaltstart:** Dienste im kostenlosen Tarif schlafen nach etwa 15 Minuten ohne Aufruf ein. Der erste Aufruf danach dauert deutlich länger. Das Frontend zeigt solange „Belege werden geladen …“. Vor der Abgabe den Link einmal aufrufen.
@@ -82,8 +132,10 @@ Ohne diesen Schritt blockiert der Browser die Anfrage des Frontends. In der Brow
 - **Lokal testen wie auf Render:**
 
   ```bash
+  docker network create eigenbeleg
+  docker run -d --name eigenbeleg-db --network eigenbeleg -e POSTGRES_USER=eigenbeleg -e POSTGRES_PASSWORD=eigenbeleg -e POSTGRES_DB=eigenbeleg postgres:17-alpine
   docker build -t eigenbeleg-backend .
-  docker run --rm -e PORT=9090 -e FRONTEND_URL=http://localhost:5173 -p 9090:9090 eigenbeleg-backend
+  docker run --rm --network eigenbeleg -e PORT=9090 -e FRONTEND_URL=http://localhost:5173 -e DB_URL=jdbc:postgresql://eigenbeleg-db:5432/eigenbeleg -e DB_USERNAME=eigenbeleg -e DB_PASSWORD=eigenbeleg -p 9090:9090 eigenbeleg-backend
   ```
 
   Danach liefert `http://localhost:9090/api/receipts` die Belege.

@@ -1,9 +1,11 @@
 package htw.webtech2026.Webtech2026.web;
 
+import htw.webtech2026.Webtech2026.TestcontainersConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -13,6 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Import(TestcontainersConfiguration.class)
 @SpringBootTest(properties = "app.cors.allowed-origins=https://frontend.example,http://localhost:5173")
 class CorsConfigTest {
 
@@ -48,7 +51,17 @@ class CorsConfigTest {
     }
 
     @Test
-    void rejectsMethodsOtherThanGet() throws Exception {
+    void allowsPostFromFrontend() throws Exception {
+        mockMvc.perform(options("/api/receipts")
+                        .header("Origin", "https://frontend.example")
+                        .header("Access-Control-Request-Method", "POST")
+                        .header("Access-Control-Request-Headers", "Content-Type"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin", "https://frontend.example"));
+    }
+
+    @Test
+    void rejectsMethodsOtherThanGetAndPost() throws Exception {
         mockMvc.perform(options("/api/receipts")
                         .header("Origin", "https://frontend.example")
                         .header("Access-Control-Request-Method", "DELETE"))
